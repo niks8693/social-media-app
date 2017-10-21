@@ -2,8 +2,10 @@ package com.niks.rest.webservices.app.exception;
 
 import java.util.Date;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +28,13 @@ public class CustomizedExceptionHandler extends ResponseEntityExceptionHandler {
 	public final ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
 		ExceptionResponse exres=new ExceptionResponse(ex.getMessage(), new Date(), request.getDescription(false));
 		return new ResponseEntity<Object>(exres, HttpStatus.NOT_FOUND);
+	}
+	
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+		ExceptionResponse exres=new ExceptionResponse("Validation failed", new Date(), ex.getBindingResult().toString());
+		return new ResponseEntity<Object>(exres, HttpStatus.BAD_REQUEST);
 	}
 
 }
