@@ -5,12 +5,17 @@ import java.util.Date;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Size;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+@ApiModel(description="Social Media App user with name, DOB as fields")
 public class User {
 	
 	private Integer id;
 	@Size(min=2,message="User must have atleast 2 characters")
+	@ApiModelProperty(notes="Should be at least of 2 chars")
 	private String name;
 	@Past
+	@ApiModelProperty(notes="Should be of Past")
 	private Date birthDate;
 	
 	public User(){
