@@ -1,11 +1,16 @@
 package com.niks.rest.webservices.app.user;
 
+import java.beans.MethodDescriptor;
 import java.net.URI;
 import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Resource;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
+
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,12 +32,20 @@ public class UserResource {
 	}
 	
 	@GetMapping("/users/{id}")
-	public User retrieveOne(@PathVariable int id){
+	public Resource<User> retrieveOne(@PathVariable int id){
 		User user=service.findOne(id);
 		if(user==null){
 			throw new UserNotFoundException("id-"+id);
 		}
-		return user;
+		//hateaos:
+		//when we retrieve a particular user we also want to send a link to display all users
+		//hateaos does this for us
+		//it returns the user along with a link to retrieve the list of all users
+		Resource<User> resource=new Resource<User>(user);
+		ControllerLinkBuilder linkTo=linkTo(methodOn(this.getClass()).retrieveAll());
+		resource.add(linkTo.withRel("all-users"));
+		
+		return resource;
 	}
 	
 	@PostMapping("/users")
@@ -42,6 +55,7 @@ public class UserResource {
 		//We need to get back the URI we just created
 		//--> /users/4
 		URI location=ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(savedUser.getId()).toUri();
+		
 		return ResponseEntity.created(location).build();
 	}
 	
