@@ -54,7 +54,7 @@ public class UserJPAResource {
 	
 	@PostMapping("/jpa/users")
 	public ResponseEntity<Object> createUser(@Valid @RequestBody User user){
-		User savedUser=service.save(user);
+		User savedUser=userRepository.save(user);
 		//We need to set Response status as CREATED
 		//We need to get back the URI we just created
 		//--> /users/4
@@ -65,11 +65,21 @@ public class UserJPAResource {
 	
 	@DeleteMapping("/jpa/users/{id}")
 	public void deleteOne(@PathVariable int id){
-		User user=service.deleteById(id);
-		if(user==null){
+		userRepository.deleteById(id);
+		
+		
+	}
+	
+	@GetMapping("/jpa/users/{id}/posts")
+	public List<Post> retrieveAllUserPosts(@PathVariable int id){
+		Optional<User> user=userRepository.findById(id);
+		if(!user.isPresent()){
 			throw new UserNotFoundException("id-"+id);
 		}
 		
+		List<Post> posts=user.get().getPosts();
+		
+		return posts;
 	}
 
 }
